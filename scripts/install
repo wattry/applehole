@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+VOLUME_PATH="$(dirname "$0")"
+LOG_DIR="${HOME}/Library/Logs/AppleHole.log"
+ERROR_LOG_DIR="${HOME}/Library/Logs/AppleHole.error.log"
+
+if [[ -d "/Applications/AppleHole.app" ]]; then
+  cp "${VOLUME_PATH}/com.user.applehole.daemon.plist" "$HOME/Library/LaunchAgents/com.user.applehole.daemon.plist"
+  launchctl bootstrap user/$(id -u) com.user.applehole.daemon >> $LOG_DIR 2>> $ERROR_LOG_DIR
+  launchctl start com.user.applehole.daemon.plist >> $LOG_DIR 2>> $ERROR_LOG_DIR
+else
+  echo "Please drop AppleHole into your applications before installing the Daemon"
+fi

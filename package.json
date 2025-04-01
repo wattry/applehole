@@ -1,0 +1,28 @@
+{
+  "name": "@wattry/applehole",
+  "version": "1.0.0",
+  "description": "Prevents default Apple Applications from being an Apple Hole and opening automatically.",
+  "main": "src/index.mjs",
+  "type": "module",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "render": "node /scripts/images.mjs"
+  },
+  "keywords": [
+    "apple",
+    "music",
+    "mail",
+    "plist",
+    "automation",
+    "ai",
+    "AI",
+    "artificial",
+    "intelligence"
+  ],
+  "author": "wattry",
+  "license": "MIT",
+  "devDependencies": {
+    "appdmg": "^0.6.6",
+    "sharp": "^0.33.5"
+  }
+}

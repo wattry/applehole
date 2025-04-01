@@ -1,0 +1,43 @@
+{
+  "title": "Apple Hole",
+  "icon": "./assets/AppIcon.icns",
+  "background": "assets/AppIcon.iconset/icon_512x512.png",
+  "window": {
+    "position": {
+      "x": 1000,
+      "y": 512
+    },
+    "size": {
+      "width": 512,
+      "height": 512
+    }
+  },
+  "contents": [
+    {
+      "x": 350,
+      "y": 400,
+      "type": "link",
+      "path": "/Applications"
+    },
+    {
+      "x": 30,
+      "y": 400,
+      "type": "file",
+      "path": "AppleHole.app"
+    },
+    {
+      "x": 30,
+      "y": 50,
+      "type": "link",
+      "name": "Install Daemon",
+      "path": "./AppleHole.app/Contents/Resources/install"
+    },
+    {
+      "x": 350,
+      "y": 50,
+      "type": "link",
+      "name": "Uninstall",
+      "path": "./AppleHole.app/Contents/Resources/uninstall"
+    }
+  ]
+}

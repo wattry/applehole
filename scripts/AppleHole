@@ -1,0 +1,100 @@
+#!/bin/bash
+
+##############################################
+#
+##############################################
+
+set -e
+set -o errtrace
+
+info="[INFO]"
+error="[ERROR]"
+warn="[WARN]"
+max_length=1000
+
+LOG_DIR="${HOME}/Library/Logs/AppleHole.log"
+ERROR_LOG_DIR="${HOME}/Library/Logs/AppleHole.error.log"
+
+get_dtz() {
+  echo $(date +"%Y-%m-%dT%H:%M:%S%z")
+}
+
+log_info() {
+  length=$(awk 'END {print NR}' $LOG_DIR)
+  message="$1"
+
+  if [[ "$length" -le "$max_length" ]]; then
+    echo "${info} $(get_dtz) - ${1}" >>$LOG_DIR
+  else
+    echo "${info} $(get_dtz) - ${1}" >$LOG_DIR
+  fi
+}
+
+log_error() {
+  length=$(awk 'END {print NR}' $ERROR_LOG_DIR)
+  message="$1"
+
+  if [[ "$length" -le "$max_length" ]]; then
+    echo "${error} $(get_dtz) - ${1}" >>$ERROR_LOG_DIR 2>>$ERROR_LOG_DIR
+  else
+    echo "${error} $(get_dtz) - ${1}" >$ERROR_LOG_DIR 2>$ERROR_LOG_DIR
+  fi
+}
+
+error_handler() {
+  log_error "line: $(caller) ${FUNCNAME[1]}(): ${2} command failed"
+}
+
+trap 'error_handler "$?" "$BASH_COMMAND"' ERR
+
+if [[ "$1" == '-d' ]] || [[ "$1" == '--debug' ]]; then
+  set -x
+fi
+
+stop_process() {
+  application_name="$1"
+  application_process_name="$2"
+
+  set +e
+  pgrep_name=$(test -n "$3" && echo "$3" || echo "$application_name")
+  processID=$(pgrep "${pgrep_name}")
+  set -e
+
+  if [[ "$processID" -ne 0 ]]; then
+    kill "$processID"
+    log_info "Stopped $application_process_name (pid $processID)"
+  fi
+}
+
+listen() {
+  started=0
+  application_name=$1
+  application_process_name="application.com.apple.${application_name}"
+
+  log stream --predicate "eventMessage contains 'Launch request for app<$application_process_name'" | while read -r event; do
+    if [[ $started -eq 0 ]]; then
+      started=1
+
+      log_info "$event"
+      log_info "Application launch listener started: ${application_name} ${event}"
+    else
+      log_info "$event"
+      stop_process "${application_name}" "${application_process_name}" "${2}"
+    fi
+  done
+}
+
+main() {
+  set +e
+  pgrep -f "AppleHole" | while read -r pid; do
+    if [[ $pid -ne "$$" ]]; then
+      kill "$pid"
+    fi
+  done
+  set -e
+
+  listen "Music" &
+  listen "mail" "Mail" &
+}
+
+main
