@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -e
+
+started=0
+LOG_DIR="$HOME/Library/Logs/AppleHole.log"
+
+error_handler() {
+  if [[ $1 -ne 0 ]]; then
+    echo "Line: $(caller) ${FUNCNAME[1]}(): ${2} command failed" >>$LOG_DIR
+  fi
+}
+
+if [[ "$1" == '-d' ]] || [[ "$1" == '--debug' ]]; then
+  # set -o errtrace -o functrace # Ensure ERR trap is inherited in functions and sub-shells
+  trap 'error_handler "$?" "$BASH_COMMAND"' ERR
+  set -x
+fi
+
+function main() {
+  set +e
+  processID=$(pgrep Music)
+  set -e
+
+  if [[ processID -ne 0 ]]; then
+    echo "Stopping Apple Music (pid $processID)" >>$LOG_DIR
+    kill $processID >>$LOG_DIR
+  fi
+}
+
+set +e
+processID=$(pgrep -n -f AppleHole)
+set -e
+
+if [[ -z $processID ]]; then
+  log stream --predicate 'eventMessage contains "Launch request for app<application.com.apple.Music"' | while read -r event; do
+    if [[ $started -eq 0 ]]; then
+      started=1
+    else
+      echo "$event" >>$LOG_DIR
+      sleep 0.1
+      main
+    fi
+  done
+else
+  echo "AppleHole is already running (pid $processID)" >>$LOG_DIR
+fi

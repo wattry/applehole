@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+
+started=0
+LOG_DIR="$HOME/Library/Logs/AppleHole.log"
+ERROR_LOG_DIR="$HOME/Library/Logs/AppleHole.error.log"
+PLIST_PATH="$HOME/Library/LaunchAgents/com.user.applehole.daemon.plist"
+
+
+error_handler() {
+  if [[ $1 -ne 0 ]]; then
+    echo "Line: $(caller) ${FUNCNAME[1]}(): ${2} command failed" >> $LOG_DIR 2>> $ERROR_LOG_DIR
+  fi
+}
+
+if [[ "$1" == '-d' ]] || [[ "$1" == '--debug' ]]; then
+  trap 'error_handler "$?" "$BASH_COMMAND"' ERR
+  set -x
+fi
+
+install() {
+  VOLUME_PATH="$(dirname "$0")"
+  set +e
+  cp "/Applications/AppleHole.app/Contents/Resources/com.user.applehole.daemon.plist" "$HOME/Library/LaunchAgents/com.user.applehole.daemon.plist"  >> $LOG_DIR 2>> $ERROR_LOG_DIR
+  launchctl bootstrap user/$(id -u) com.user.applehole.daemon  >> $LOG_DIR 2>> $ERROR_LOG_DIR
+  launchctl start com.user.applehole.daemon.plist >> $LOG_DIR 2>> $ERROR_LOG_DIR
+  set -e
+}
+
+if [[ ! -f "$PLIST_PATH" ]]; then
+  install
+fi
+
+function main() {
+  set +e
+  processID=$(pgrep Music) 
+  set -e
+
+  if [[ processID -ne 0 ]]; then
+    echo "Stopping Apple Music (pid $processID)" >> $LOG_DIR 2>> $ERROR_LOG_DIR
+    kill $processID  >> $LOG_DIR 2>> $ERROR_LOG_DIR
+  fi
+}
+
+ahProcessID=0
+
+set +e
+pgrep -n -f AppleHole | while read -r pid; do
+  ahProcessID=pid
+done
+set -e
+
+if [[ $ahProcessID -eq 0 ]]; then
+  log stream --predicate 'eventMessage contains "Launch request for app<application.com.apple.Music"' | while read -r event; do
+    if [[ $started -eq 0 ]]; then
+      started=1
+    else
+      echo "$event" >> $LOG_DIR
+      sleep 0.1
+      main
+    fi
+  done
+else
+  echo "AppleHole is already running (pid $processID)" >>$LOG_DIR
+fi

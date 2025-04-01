@@ -1,0 +1,17 @@
+#!/bin/bash
+
+LOG_DIR="$HOME/Library/Logs/AppleHole.log"
+ERROR_LOG_DIR="$HOME/Library/Logs/AppleHole.error.log"
+
+pgrep -n -f AppleHole | while read -r pid; do
+  kill $pid >> $LOG_DIR 2>> $ERROR_LOG_DIR
+done
+
+launchctl stop com.user.applehole.daemon >> $LOG_DIR 2>> $ERROR_LOG_DIR
+launchctl bootout "user/$(id -u)" com.user.applehole.daemon >> $LOG_DIR 2>> $ERROR_LOG_DIR
+launchctl remove com.user.applehole.daemon >> $LOG_DIR 2>> $ERROR_LOG_DIR
+
+rm -f "$HOME/Library/LaunchAgents/com.user.applehole.daemon.plist" >> $LOG_DIR 2>> $ERROR_LOG_DIR
+rm -rf /Applications/AppleHole.app >> $LOG_DIR 2>> $ERROR_LOG_DIR
+
+echo "Uninstall Complete" >> $LOG_DIR

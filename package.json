@@ -1,0 +1,29 @@
+{
+  "name": "@wattry/applehole",
+  "version": "1.0.0",
+  "description": "Prevents Apple Music from being an Apple Hole and opening automatically.",
+  "main": "src/index.mjs",
+  "type": "module",
+  "bin": "./src/index.mjs",
+  "scripts": {
+    "open": "open ./dist/AppleHole.dmg",
+    "build:dmg": "rm -f ./dist/AppleHole.dmg && appdmg --verbose ./appdmg.json ./dist/AppleHole.dmg && pnpm open",
+    "build:images": "node ./scripts/images.mjs",
+    "build:icons": "./scripts/icons.sh"
+  },
+  "keywords": [
+    "apple",
+    "music",
+    "plist",
+    "automation",
+    "ai",
+    "AI",
+    "artificial"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "appdmg": "^0.6.6",
+    "sharp": "^0.33.5"
+  }
+}
