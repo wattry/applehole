@@ -7,7 +7,7 @@ LOG_DIR="$HOME/Library/Logs/AppleHole.log"
 
 error_handler() {
   if [[ $1 -ne 0 ]]; then
-    echo "Line: $(caller) ${FUNCNAME[1]}(): ${2} command failed" >>$LOG_DIR
+    echo "Line: $(caller) ${FUNCNAME[1]}(): ${2} command failed" >> $LOG_DIR
   fi
 }
 
@@ -23,8 +23,8 @@ function main() {
   set -e
 
   if [[ processID -ne 0 ]]; then
-    echo "Stopping Apple Music (pid $processID)" >>$LOG_DIR
-    kill $processID >>$LOG_DIR
+    echo "Stopping Apple Music (pid $processID)" >> $LOG_DIR
+    kill $processID >> $LOG_DIR
   fi
 }
 
@@ -37,11 +37,11 @@ if [[ -z $processID ]]; then
     if [[ $started -eq 0 ]]; then
       started=1
     else
-      echo "$event" >>$LOG_DIR
+      echo "$event" >> $LOG_DIR
       sleep 0.1
       main
     fi
   done
 else
-  echo "AppleHole is already running (pid $processID)" >>$LOG_DIR
+  echo "AppleHole is already running (pid $processID)" >> $LOG_DIR
 fi
