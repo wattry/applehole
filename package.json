@@ -1,11 +1,14 @@
 {
   "name": "@wattry/applehole",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "description": "Prevents default Apple Applications from being an Apple Hole and opening automatically.",
   "main": "src/index.mjs",
   "type": "module",
   "scripts": {
     "build": "./scripts/build.sh",
+    "build:cleanup": "./scripts/cleanup.sh",
+    "tag": "node ./scripts/tag.js",
+    "release": "node ./scripts/release.js",
     "render": "node /scripts/images.mjs"
   },
   "keywords": [
@@ -24,5 +27,9 @@
   "devDependencies": {
     "appdmg": "^0.6.6",
     "sharp": "^0.33.5"
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "commander": "^13.1.0"
   }
 }

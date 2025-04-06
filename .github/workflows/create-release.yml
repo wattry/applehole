@@ -1,0 +1,59 @@
+name: Create Release
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'info'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+      conventionalCommit:
+        description: 'A conventional commit message'
+        required: true
+        default: 'feat'
+        type: choice
+        options:
+          - 'feat:'
+          - 'fix:'
+          - 'chore:'
+          - 'BREAKING CHANGE:'
+          - '!feat:'
+          - '!fix:'
+          - '!chore:'
+      description:
+        description: 'An optional commit message'
+        required: true
+        default: 'Releasing new version'
+        type: string
+          
+jobs:
+  create_release:
+    runs-on: macOS-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CONVENTIONAL_COMMIT: ${{ inputs.conventionalCommit }}
+      RELEASE_DESCRIPTION: ${{ inputs.description }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Tag release version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          npm install
+          CURRENT_RELEASE_TAG=$(git tag -l | head -n 1)
+          npm run tag -- $CURRENT_RELEASE_TAG
+          RELEASE_TAG=$(git tag -l | head -n 1)
+          RELEASE_CHIP_SET=$(uname -m)
+          npm run build -- $RELEASE_TAG
+          npm run release -- $RELEASE_TAG $RELEASE_CHIP_SET

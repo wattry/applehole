@@ -3,16 +3,15 @@
 # Throw on all errors
 set -e
 
+RELEASE_TAG="$1"
+
 # Set the location of the source to build the dmg
 DMG_BUILD_PATH="${PWD}/AppleHole.app/Contents" 
 # Set the path to generate the dmg file to distribute.
-DMG_PATH="${PWD}/dist/AppleHole.dmg"
+DMG_PATH="${PWD}/assets/AppleHole-${RELEASE_TAG}.dmg"
 
 # Clear out all generated assets
-rm -rf "${PWD}/assets/"*
-rm -f "${DMG_PATH}"
-rm -rf "${DMG_BUILD_PATH}/Resources/"*
-rm -rf "${DMG_BUILD_PATH}/MacOs/"*
+/bin/bash "${PWD}/scripts/cleanup.sh"
 
 # Copy the source and assets to the dmg source build directory
 if [[ ! -d "${DMG_BUILD_PATH}/MacOs" ]]; then
@@ -21,6 +20,10 @@ fi
 
 if [[ ! -d "${DMG_BUILD_PATH}/Resources" ]]; then
   mkdir "${DMG_BUILD_PATH}/Resources"
+fi
+
+if [[ ! -d "${PWD}/assets" ]]; then
+  mkdir "${PWD}/assets"
 fi
 
 cp "${PWD}/scripts/AppleHole" "${DMG_BUILD_PATH}/MacOs/AppleHole"
