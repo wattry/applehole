@@ -5,6 +5,10 @@ set -e
 
 RELEASE_TAG="$1"
 
+if [[ -z "$1" ]]; then
+  RELEASE_TAG="local"
+fi
+
 # Set the location of the source to build the dmg
 DMG_BUILD_PATH="${PWD}/AppleHole.app/Contents" 
 # Set the path to generate the dmg file to distribute.
@@ -29,7 +33,7 @@ fi
 cp "${PWD}/scripts/AppleHole" "${DMG_BUILD_PATH}/MacOs/AppleHole"
 cp "${PWD}/scripts/install" "${DMG_BUILD_PATH}/Resources/"
 cp "${PWD}/scripts/uninstall" "${DMG_BUILD_PATH}/Resources/"
-cp "${PWD}/config/com.user.applehole.daemon.plist" "${DMG_BUILD_PATH}/Resources/uninstall"
+cp "${PWD}/config/com.user.applehole.daemon.plist" "${DMG_BUILD_PATH}/Resources/"
 
 # Create the icons
 /bin/bash "${PWD}/scripts/icons.sh"

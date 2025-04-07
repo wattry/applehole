@@ -2,6 +2,7 @@ node_modules
 AppIcon.icns
 AppIcon.iconset
 AppleHole.dmg
+*.dmg
 .DS_Store
 AppleHole.app/Contents/MacOs/*
 AppleHole.app/Contents/Resources/*
